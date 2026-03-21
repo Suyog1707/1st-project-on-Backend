@@ -13,8 +13,10 @@ app.use(express.urlencoded({extended: true, limit: "20kb"}))
 app.use(express.static("public"))
 app.use(cookieParser())
 
-app.get('/', (req, res) => {
-    res.send("HELLO WORLD");
-})
+// import routers
+import userRouter from "./routes/user.routes.js"
+
+//define routers
+app.use("/api/v1/user", userRouter)
 
 export default app;
