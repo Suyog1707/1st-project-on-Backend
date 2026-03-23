@@ -17,7 +17,6 @@ const registerUser = asyncHandler(async (req, res) => {
     // return res
 
     const { username, email, password, fullName } = req.body
-    console.log(username, email, password, fullName)
 
     if (
         [username, email, password, fullName].some((field) => field?.trim() === "")
@@ -33,8 +32,13 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(400, "User with email or gmail is already exist")
     }
     
-    const avatarLocalPath = req.files?.avater[0]?.path
-    const coverImageLocalPath = req.files?.coverImage[0]?.path
+    const avatarLocalPath = req.files?.avatar[0]?.path
+    
+    let coverImageLocalPath;
+
+    if ( req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0 ) {
+        coverImageLocalPath = req.files.coverImage[0].path
+    }
     
     if (!avatarLocalPath) {
         throw new ApiError(400, "Avatar is required")
@@ -43,13 +47,17 @@ const registerUser = asyncHandler(async (req, res) => {
     const avatar = await uploadOnCloudinary(avatarLocalPath)
     const coverImage = await uploadOnCloudinary(coverImageLocalPath)
 
+    if (!avatar) {
+        throw new ApiError(400, "Avatar is required")
+    }
+
     const user = await User.create({
+        fullName,
         username: username.toLowerCase(),
-        avatar: avatar.url,
-        coverImage: coverImage?.url || "",
         email,
         password,
-        fullName
+        avatar: avatar.url,
+        coverImage: coverImage?.url || "",
     })
 
     const createdUser = await User.findById(user._id).select("-password -refreshToken")
