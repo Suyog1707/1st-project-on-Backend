@@ -9,16 +9,16 @@ const port = process.env.PORT || 3000
 
 
 connectDB()
-.then(() => {
-    app.on("ERROR", (error) => {
-        console.log(`Error: ${error}`);
-        throw error
-    })
+    .then(() => {
+        app.on("ERROR", (error) => {
+            console.log(`Error: ${error}`);
+            throw error
+        })
 
-    app.listen( port, () => {
-        console.log(`⚙️  SERVER is running at http://localhost:${port}`);
-    });
-})
-.catch((error) => {
-    console.log("Mongo DB connetion FAILED", error);
-})
+        app.listen(port, () => {
+            console.log(`⚙️  SERVER is running at http://localhost:${port}`);
+        });
+    })
+    .catch((error) => {
+        console.log("Mongo DB connetion FAILED", error);
+    })
