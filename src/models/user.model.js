@@ -8,7 +8,7 @@ const userSchema = new Schema({
         required: true,
         unique: true,
         index: true,
-        lowecase: true,
+        lowercase: true,
         trim: true
     },
     email: {
@@ -29,11 +29,11 @@ const userSchema = new Schema({
         index: true
     },
     avatar: {
-        type: String,
+        type: Object,
         required: true,
     },
     coverImage: {
-        type: String,
+        type: Object,
     },
     watchHistory: [
         {

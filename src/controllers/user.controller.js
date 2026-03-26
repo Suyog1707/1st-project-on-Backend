@@ -2,7 +2,7 @@ import asyncHandler from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/user.model.js";
-import uploadOnCloudinary from "../utils/cloudinary.js";
+import { uploadOnCloudinary, deleteFromCloudinary } from "../utils/cloudinary.js";
 import jwt from "jsonwebtoken"
 
 const generateAccessAndRefreshToken = async (userId) => {
@@ -76,8 +76,16 @@ const registerUser = asyncHandler(async (req, res) => {
         username: username.toLowerCase(),
         email,
         password,
-        avatar: avatar.url,
-        coverImage: coverImage?.url || "",
+        avatar: {
+            url: avatar?.url,
+            secure_url: avatar?.secure_url,
+            public_id: avatar?.public_id
+        },
+        coverImage: {
+            url: coverImage?.url,
+            secure_url: coverImage?.secure_url,
+            public_id: coverImage?.public_id
+        } || "",
     })
 
     const createdUser = await User.findById(user._id).select("-password -refreshToken")
@@ -264,13 +272,13 @@ const updateUserDetails = asyncHandler(async (req, res) => {
         throw new ApiError(401, "All fields are Required")
     }
 
-    const user = User.findByIdAndUpdate(
+    const user = await User.findByIdAndUpdate(
         req.user?._id,
         {
             $set: {
                 fullName,
                 email,
-                username
+                username: username.toLowerCase()
             }
         },
         { new: true }
@@ -290,6 +298,10 @@ const updateAvatar = asyncHandler(async (req, res) => {
         throw new ApiError(401, "Avatar file is Missing")
     }
 
+    const prevAvatar = req.user?.avatar.public_id
+
+    await deleteFromCloudinary(prevAvatar)
+
     const avatar = await uploadOnCloudinary(avatarLocalPath)
 
     if (!avatar) {
@@ -300,7 +312,11 @@ const updateAvatar = asyncHandler(async (req, res) => {
         req.user?._id,
         {
             $set: {
-                avatar: avatar.url
+                avatar: {
+                    url: avatar.url,
+                    secure_url: avatar.secure_url,
+                    public_id: avatar.public_id
+                }
             }
         },
         { new: true }
@@ -320,6 +336,10 @@ const updateCoverImage = asyncHandler(async (req, res) => {
         throw new ApiError(401, "Cover Image file is Missing")
     }
 
+    const prevCoverImage = req.user?.coverImage.public_id
+
+    await deleteFromCloudinary(prevCoverImage)
+
     const coverImage = await uploadOnCloudinary(coverImageLocalPath)
 
     if (!coverImage) {
@@ -330,7 +350,11 @@ const updateCoverImage = asyncHandler(async (req, res) => {
         req.user?._id,
         {
             $set: {
-                coverImage: coverImage.url
+                coverImage: {
+                    url: coverImage.url,
+                    secure_url: coverImage.secure_url,
+                    public_id: coverImage.public_id
+                }
             }
         },
         { new: true }
