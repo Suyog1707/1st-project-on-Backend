@@ -60,6 +60,10 @@ const getVideoById = asyncHandler(async (req, res) => {
 
     const video = await Video.findById(videoId)
 
+    if (!video) {
+        throw new ApiError(404, "Video not found")
+    }
+
     if (video === null) {
         throw new ApiError(404, "Video not found")
     }
@@ -87,6 +91,10 @@ const updateVideo = asyncHandler(async (req, res) => {
     }
 
     let video = await Video.findById(videoId)
+
+    if (!video) {
+        throw new ApiError(404, "Video not found")
+    }
 
     const prevThumbnail = video?.thumbnail.public_id
 
@@ -123,20 +131,58 @@ const deleteVideo = asyncHandler(async (req, res) => {
 
     const video = await Video.findById(videoId)
 
+    if (!video) {
+        throw new ApiError(404, "Video not found")
+    }
+
     await deleteVideoFromCloudinary(video.videoFile.public_id)
     await deleteImageFromCloudinary(video.thumbnail.public_id)
 
     await Video.deleteOne(video._id)
 
     return res
-    .status(200)
-    .json(
-        new ApiResponse(200, "Video deleted successfully")
-    )
+        .status(200)
+        .json(
+            new ApiResponse(200, "Video deleted successfully")
+        )
 })
 
 const togglePublishStatus = asyncHandler(async (req, res) => {
     const { videoId } = req.params
+
+    let video = await Video.findById(videoId)
+
+    if (!video) {
+        throw new ApiError(404, "Video not found")
+    }
+
+    if (video.isPublished) {
+        video = await Video.findByIdAndUpdate(
+            videoId,
+            {
+                $set: {
+                    isPublished: false
+                }
+            },
+            { new: true }
+        )
+    } else {
+        video = await Video.findByIdAndUpdate(
+            videoId,
+            {
+                $set: {
+                    isPublished: true
+                }
+            },
+            { new: true }
+        )
+    }
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200, video, `Status changed successfully`)
+    )
 })
 
 export {
