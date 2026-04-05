@@ -41,3 +41,17 @@ export const deleteImageFromCloudinary = async (publicId) => {
         throw new ApiError(500, "Error while deleting the File")
     }
 }
+
+export const deleteVideoFromCloudinary = async (publicId) => {
+    try {
+        if (!publicId) {
+            return null;
+        }
+
+        const response = await cloudinary.uploader.destroy(publicId,{resource_type: 'video'})
+
+        return response;
+    } catch (error) {
+        throw new ApiError(500, "Error while deleting the File")
+    }
+}
