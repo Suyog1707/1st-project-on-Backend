@@ -78,7 +78,20 @@ const updateVideo = asyncHandler(async (req, res) => {
 
 const deleteVideo = asyncHandler(async (req, res) => {
     const { videoId } = req.params
+    //TODO: delete video
 
+    const video = await Video.findById(videoId)
+
+    await deleteVideoFromCloudinary(video.videoFile.public_id)
+    await deleteImageFromCloudinary(video.thumbnail.public_id)
+
+    await Video.deleteOne(video._id)
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200, "Video deleted successfully")
+    )
 })
 
 const togglePublishStatus = asyncHandler(async (req, res) => {
