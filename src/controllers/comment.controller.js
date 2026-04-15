@@ -36,7 +36,28 @@ const addComment = asyncHandler(async (req, res) => {
 })
 
 const updateComment = asyncHandler(async (req, res) => {
-    
+    const { commentId } = req.params
+    const { content } = req.body
+
+    if (!content) {
+        throw new ApiError(400, "Reuired comment")
+    }
+
+    const comment = await Comment.findByIdAndUpdate(
+        commentId,
+        {
+            $set: {
+                content
+            }
+        },
+        {new: true}
+    )
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200, comment, "Comment Updated Successfully")
+    )
 })
 
 const deleteComment = asyncHandler(async (req, res) => {
