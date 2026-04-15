@@ -6,7 +6,24 @@ import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
 
 const createTweet = asyncHandler(async (req, res) => {
-    //TODO: create tweet
+    const { content } = req.body
+
+    if (!content) {
+        throw new ApiError(400, "Required Tweet")
+    }
+
+    const owner = await User.findById(req.user?._id).select("-password -refreshToken -email -coverImage -watchHistory")
+
+    const tweet = await Tweet.create({
+        owner,
+        content
+    })
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200, tweet, "tweet was created Successfully")
+    )
 })
 
 const getUserTweets = asyncHandler(async (req, res) => {
