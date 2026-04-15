@@ -29,10 +29,10 @@ const addComment = asyncHandler(async (req, res) => {
     })
 
     return res
-    .status(200)
-    .json(
-        new ApiResponse(200, comment, "Comment added Successfully")
-    )
+        .status(200)
+        .json(
+            new ApiResponse(200, comment, "Comment added Successfully")
+        )
 })
 
 const updateComment = asyncHandler(async (req, res) => {
@@ -50,14 +50,14 @@ const updateComment = asyncHandler(async (req, res) => {
                 content
             }
         },
-        {new: true}
+        { new: true }
     )
 
     return res
-    .status(200)
-    .json(
-        new ApiResponse(200, comment, "Comment Updated Successfully")
-    )
+        .status(200)
+        .json(
+            new ApiResponse(200, comment, "Comment Updated Successfully")
+        )
 })
 
 const deleteComment = asyncHandler(async (req, res) => {
@@ -66,10 +66,10 @@ const deleteComment = asyncHandler(async (req, res) => {
     await Comment.findByIdAndDelete(commentId)
 
     return res
-    .status(200)
-    .json(
-        new ApiResponse(200, "Comment Deleted Successfully")
-    )
+        .status(200)
+        .json(
+            new ApiResponse(200, "Comment Deleted Successfully")
+        )
 })
 
 export {
