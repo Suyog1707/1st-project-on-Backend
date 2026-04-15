@@ -460,10 +460,10 @@ const getUserWatchHistory = asyncHandler(async (req, res) => {
                             as: "owner",
                             pipeline: [
                                 {
-                                    $project : {
+                                    $project: {
                                         fullName: 1,
                                         username: 1,
-                                        avatar: 1 
+                                        avatar: 1
                                     }
                                 }
                             ]
@@ -482,10 +482,10 @@ const getUserWatchHistory = asyncHandler(async (req, res) => {
     ])
 
     return res
-    .status(200)
-    .json(
-        new ApiResponse(200, user[0].watchHistory, "Watch history fetch successfully")
-    )
+        .status(200)
+        .json(
+            new ApiResponse(200, user[0].watchHistory, "Watch history fetch successfully")
+        )
 })
 
 export {

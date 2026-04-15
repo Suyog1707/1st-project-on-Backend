@@ -9,6 +9,6 @@ const tweetSchema = new Schema({
         type: String,
         required: true
     }
-}, { timestamps: "true" })
+}, { timestamps: true })
 
 export const Tweet = mongoose.model("Tweet", tweetSchema)

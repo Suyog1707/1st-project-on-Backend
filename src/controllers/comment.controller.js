@@ -2,7 +2,7 @@ import mongoose from "mongoose"
 import { User } from "../models/user.model.js"
 import { ApiError } from "../utils/ApiError.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
-import { asyncHandler } from "../utils/asyncHandler.js"
+import asyncHandler from "../utils/asyncHandler.js"
 import { Comment } from "../models/comment.model.js"
 
 const getVideoComments = asyncHandler(async (req, res) => {
@@ -53,6 +53,10 @@ const updateComment = asyncHandler(async (req, res) => {
         { new: true }
     )
 
+    if (!comment) {
+        throw new ApiError(404, "comment not found")
+    }
+
     return res
         .status(200)
         .json(
@@ -62,6 +66,12 @@ const updateComment = asyncHandler(async (req, res) => {
 
 const deleteComment = asyncHandler(async (req, res) => {
     const { commentId } = req.params
+
+    const comment = await Comment.findById(commentId)
+
+    if (!comment) {
+        throw new ApiError(404, "Comment not Found")
+    }
 
     await Comment.findByIdAndDelete(commentId)
 
