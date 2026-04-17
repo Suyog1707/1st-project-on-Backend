@@ -6,6 +6,42 @@ import { ApiResponse } from "../utils/ApiResponse.js"
 import asyncHandler from "../utils/asyncHandler.js"
 import { deleteImageFromCloudinary, deleteVideoFromCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js"
 
+const getVideoWithViewsCount = async (videoId) => {
+    return await Video.aggregate([
+        {
+            $match: {
+                _id: new mongoose.Types.ObjectId(videoId)
+            }
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "_id",
+                foreignField: "watchHistory",
+                as: "views"
+            }
+        },
+        {
+            $set: {
+                views: {
+                    $size: "$views"
+                }
+            }
+        },
+        {
+            $project: {
+                videoFile: 1,
+                thumbnail: 1,
+                owner: 1,
+                title: 1,
+                description: 1,
+                duration: 1,
+                views: 1,
+                isPublished: 1,
+            }
+        }
+    ])
+}
 
 const getAllVideos = asyncHandler(async (req, res) => {
     const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query
@@ -58,7 +94,17 @@ const publishAVideo = asyncHandler(async (req, res) => {
 const getVideoById = asyncHandler(async (req, res) => {
     const { videoId } = req.params
 
-    const video = await Video.findById(videoId)
+    const video = await getVideoWithViewsCount(videoId)
+
+    if (!video) {
+        throw new ApiError(404, "Video not found")
+    }
+
+    if (video === null) {
+        throw new ApiError(404, "Video not found")
+    }
+
+
 
     const user = await User.findById(req.user._id)
 
@@ -74,14 +120,6 @@ const getVideoById = asyncHandler(async (req, res) => {
             }
         }
     )
-
-    if (!video) {
-        throw new ApiError(404, "Video not found")
-    }
-
-    if (video === null) {
-        throw new ApiError(404, "Video not found")
-    }
 
     return res
         .status(200)
